@@ -21,11 +21,9 @@ public class Conta {
 	
 	@Column(nullable=false)
 	private String numero;
-	@Column(nullable=false)
 	private Double saldo;
 	@Column(nullable=false)
 	private Double limiteSaldo;
-	@Column(nullable=false)
 	private String chavePix;
 	
 	@ManyToOne
