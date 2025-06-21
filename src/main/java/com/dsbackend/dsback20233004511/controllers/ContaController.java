@@ -65,4 +65,16 @@ public class ContaController {
 		ContaDTO conta = contaService.deposito(operacaoDTO.getConta1(), operacaoDTO.getValor());
 		return ResponseEntity.status(201).body(conta);
 	}
+	
+	@PostMapping("/transferencia")
+	public ResponseEntity<List<ContaDTO>> transferir(@RequestBody OperacaoDTO operacaoDTO){
+		List<ContaDTO> contas = contaService.transferencia(operacaoDTO.getConta1(), operacaoDTO.getConta2(), operacaoDTO.getValor());
+		return ResponseEntity.status(201).body(contas);
+	}
+	
+	@PostMapping("/pix")
+	public ResponseEntity<List<ContaDTO>> pix(@RequestBody OperacaoDTO operacaoDTO){
+		List<ContaDTO> contas = contaService.pix(operacaoDTO.getConta1(), operacaoDTO.getConta2(), operacaoDTO.getValor());
+		return ResponseEntity.status(201).body(contas);
+	}
 }

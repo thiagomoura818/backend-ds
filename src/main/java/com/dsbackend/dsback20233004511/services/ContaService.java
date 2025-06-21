@@ -1,6 +1,7 @@
 package com.dsbackend.dsback20233004511.services;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -165,11 +166,104 @@ public class ContaService {
 		return new ContaDTO(contaSalva);
 	}
 	
-	public void transferencia(String n1, String n2, Double valor) {
+	public List<ContaDTO> transferencia(String n1, String n2, Double valor) {
+		if(n1.equals(n2))
+			throw new IllegalArgumentException("Não é possível transferir para a mesma conta ");
+		Conta conta1 = contaRepository.findByNumero(n1)
+				.orElseThrow(() -> new EntityNotFoundException("Essa conta não existe "+n1));
 		
+		Conta conta2 = contaRepository.findByNumero(n2)
+				.orElseThrow(() -> new EntityNotFoundException("Essa conta não existe "+n2));
+		
+		Double valorTotal = valor*1.10;
+		if(valorTotal > conta1.getLimiteSaldo() + conta1.getSaldo())
+			throw new IllegalArgumentException("Saldo insuficiente");
+		
+		/* l1 -> Valor original {valor} removido da primeira conta
+		 * l2 -> Valor taxa {0.10*valor} removido da primeira conta
+		 * l3 -> Valor original {valor} adicionado na segunda conta
+		 * */
+		
+		LancamentoDTO l1, l2, l3;
+		l1 = new LancamentoDTO();
+		l1.setContaId(conta1.getId());
+		l1.setEstado(Estado.SAIDA);
+		l1.setOperacao(Operacao.TRANSFERENCIA);
+		l1.setTipo(Tipo.DEBITO);
+		l1.setValor(valor);
+		
+		l2 = new LancamentoDTO();
+		l2.setContaId(conta1.getId());
+		l2.setEstado(Estado.SAIDA);
+		l2.setOperacao(Operacao.TAXA);
+		l2.setTipo(Tipo.DEBITO);
+		l2.setValor(0.10*valor);
+		
+		l3 = new LancamentoDTO();
+		l3.setContaId(conta2.getId());
+		l3.setEstado(Estado.ENTRADA);
+		l3.setOperacao(Operacao.TRANSFERENCIA);
+		l3.setTipo(Tipo.CREDITO);
+		l3.setValor(valor);
+		
+		conta1.setSaldo(conta1.getSaldo()-valorTotal);
+		conta2.setSaldo(conta2.getSaldo()+valor);
+	
+		List<ContaDTO> listaContas = new ArrayList<>();
+		Conta conta1Salva = contaRepository.save(conta1);
+		Conta conta2Salva = contaRepository.save(conta2);
+		listaContas.add(new ContaDTO(conta1Salva));
+		listaContas.add(new ContaDTO(conta2Salva));
+		
+		lancamentoService.insert(l1);
+		lancamentoService.insert(l2);
+		lancamentoService.insert(l3);
+		return listaContas;
 	}
 	
-	public void pix(String n1, String n2, Double valor) {
+	public List<ContaDTO> pix(String n1, String n2, Double valor) {
+		if(n1.equals(n2))
+			throw new IllegalArgumentException("Não é possível transferir para a mesma conta ");
+		Conta conta1 = contaRepository.findByChavePix(n1)
+				.orElseThrow(() -> new EntityNotFoundException("Essa conta não existe "+n1));
 		
+		Conta conta2 = contaRepository.findByChavePix(n2)
+				.orElseThrow(() -> new EntityNotFoundException("Essa conta não existe "+n2));
+		
+		
+		if(valor > conta1.getLimiteSaldo() + conta1.getSaldo())
+			throw new IllegalArgumentException("Saldo insuficiente");
+		
+		/* l1 -> Valor original {valor} removido da primeira conta
+		 * l3 -> Valor original {valor} adicionado na segunda conta
+		 * */
+		
+		LancamentoDTO l1,l3;
+		l1 = new LancamentoDTO();
+		l1.setContaId(conta1.getId());
+		l1.setEstado(Estado.SAIDA);
+		l1.setOperacao(Operacao.TRANSFERENCIA);
+		l1.setTipo(Tipo.DEBITO);
+		l1.setValor(valor);
+		
+		l3 = new LancamentoDTO();
+		l3.setContaId(conta2.getId());
+		l3.setEstado(Estado.ENTRADA);
+		l3.setOperacao(Operacao.TRANSFERENCIA);
+		l3.setTipo(Tipo.CREDITO);
+		l3.setValor(valor);
+		
+		conta1.setSaldo(conta1.getSaldo()-valor);
+		conta2.setSaldo(conta2.getSaldo()+valor);
+	
+		List<ContaDTO> listaContas = new ArrayList<>();
+		Conta conta1Salva = contaRepository.save(conta1);
+		Conta conta2Salva = contaRepository.save(conta2);
+		listaContas.add(new ContaDTO(conta1Salva));
+		listaContas.add(new ContaDTO(conta2Salva));
+		
+		lancamentoService.insert(l1);
+		lancamentoService.insert(l3);
+		return listaContas;
 	}
 }
