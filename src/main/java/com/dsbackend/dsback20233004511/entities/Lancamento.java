@@ -34,17 +34,25 @@ public class Lancamento {
 	@JoinColumn(name="id_conta", nullable=false)
 	private Conta conta;
 	
+	/*
+	 * Tipo enumerado pra representar SAIDA ou ENTRADA de lancamentos na conta
+	 * */
+	@Enumerated(EnumType.STRING)
+	@Column(name="estado", nullable=false)
+	private Estado estado;
+	
 	public Lancamento() {
 		
 	}
-
-	public Lancamento(Long id, Double valor, Tipo tipo, Operacao operacao, Conta conta) {
+	
+	public Lancamento(Long id, Double valor, Tipo tipo, Operacao operacao, Conta conta, Estado estado) {
 		super();
 		this.id = id;
 		this.valor = valor;
 		this.tipo = tipo;
 		this.operacao = operacao;
 		this.conta = conta;
+		this.estado = estado;
 	}
 
 	public Long getId() {
@@ -87,11 +95,19 @@ public class Lancamento {
 		this.conta = conta;
 	}
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(conta, id, operacao, tipo, valor);
+	public Estado getEstado() {
+		return estado;
 	}
 
+	public void setEstado(Estado estado) {
+		this.estado = estado;
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(conta, estado, id, operacao, tipo, valor);
+	}
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -101,8 +117,8 @@ public class Lancamento {
 		if (getClass() != obj.getClass())
 			return false;
 		Lancamento other = (Lancamento) obj;
-		return Objects.equals(conta, other.conta) && Objects.equals(id, other.id) && operacao == other.operacao
-				&& tipo == other.tipo && Objects.equals(valor, other.valor);
+		return Objects.equals(conta, other.conta) && estado == other.estado && Objects.equals(id, other.id)
+				&& operacao == other.operacao && tipo == other.tipo && Objects.equals(valor, other.valor);
 	}
 	
 	

@@ -7,8 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.dsbackend.dsback20233004511.dto.ContaDTO;
+import com.dsbackend.dsback20233004511.dto.LancamentoDTO;
 import com.dsbackend.dsback20233004511.entities.Cliente;
 import com.dsbackend.dsback20233004511.entities.Conta;
+import com.dsbackend.dsback20233004511.entities.Estado;
+import com.dsbackend.dsback20233004511.entities.Operacao;
+import com.dsbackend.dsback20233004511.entities.Tipo;
 import com.dsbackend.dsback20233004511.repositories.ClienteRepository;
 import com.dsbackend.dsback20233004511.repositories.ContaRepository;
 
@@ -22,6 +26,9 @@ public class ContaService {
 	
 	@Autowired
 	private ClienteRepository clienteRepository;
+	
+	@Autowired
+	private LancamentoService lancamentoService;
 	
 	public List<ContaDTO> findAll(){
 		List<Conta> listaContas = contaRepository.findAll();
@@ -90,5 +97,79 @@ public class ContaService {
 		conta.setChavePix(pix);
 		Conta contaSalva = contaRepository.save(conta);
 		return new ContaDTO(contaSalva);
+	}
+	
+	public ContaDTO saque(String numero, Double valor) {
+		Conta conta = contaRepository.findByNumero(numero)
+				.orElseThrow(()-> new EntityNotFoundException("Essa conta não existe"));
+		
+		if(valor > conta.getLimiteSaldo()+conta.getLimiteSaldo())
+			throw new IllegalArgumentException("O valor não pode exceder o limite de credito");
+		
+		LancamentoDTO lancamentoDTO = new LancamentoDTO();
+		
+		conta.setSaldo(conta.getSaldo()-valor);
+		Conta contaSalva = contaRepository.save(conta);
+		lancamentoDTO.setContaId(contaSalva.getId());
+		lancamentoDTO.setEstado(Estado.SAIDA);
+		lancamentoDTO.setOperacao(Operacao.SAQUE);
+		lancamentoDTO.setTipo(Tipo.DEBITO);
+		lancamentoDTO.setValor(valor);
+		lancamentoService.insert(lancamentoDTO);
+		
+		return new ContaDTO(contaSalva);
+	}
+	
+	public ContaDTO deposito(String numero, Double valor) {
+		Conta conta = contaRepository.findByNumero(numero)
+				.orElseThrow(()-> new EntityNotFoundException("Essa conta não existe"));
+		
+		
+		List<Conta> listaDeContas = contaRepository.findByClienteId(conta.getCliente().getId());
+		Double soma =0.0, deposito1, deposito2 = 0.0;
+		
+		for(Conta c : listaDeContas)
+			soma+=c.getSaldo();
+		
+		deposito1 = 1.10*valor + conta.getSaldo();
+		deposito2 = valor + conta.getSaldo();
+		
+		Conta contaSalva;
+		
+		if(valor > soma) {
+			LancamentoDTO lancamentoDTOBonus;
+			lancamentoDTOBonus = new LancamentoDTO();
+			
+			lancamentoDTOBonus.setEstado(Estado.ENTRADA);
+			lancamentoDTOBonus.setOperacao(Operacao.BONUS);
+			lancamentoDTOBonus.setTipo(Tipo.CREDITO);
+			lancamentoDTOBonus.setValor(0.10*valor);
+			
+			conta.setSaldo(deposito1);
+			contaSalva = contaRepository.save(conta);
+			lancamentoDTOBonus.setContaId(contaSalva.getId());
+			lancamentoService.insert(lancamentoDTOBonus);
+		}else { 
+			
+			conta.setSaldo(deposito2);
+			contaSalva = contaRepository.save(conta);
+		}
+		
+		LancamentoDTO lancamentoDTO = new LancamentoDTO();
+		lancamentoDTO.setContaId(contaSalva.getId());
+		lancamentoDTO.setEstado(Estado.ENTRADA);
+		lancamentoDTO.setOperacao(Operacao.DEPOSITO);
+		lancamentoDTO.setTipo(Tipo.CREDITO);
+		lancamentoDTO.setValor(valor);
+		lancamentoService.insert(lancamentoDTO);
+		return new ContaDTO(contaSalva);
+	}
+	
+	public void transferencia(String n1, String n2, Double valor) {
+		
+	}
+	
+	public void pix(String n1, String n2, Double valor) {
+		
 	}
 }

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.dsbackend.dsback20233004511.dto.ChavePix;
 import com.dsbackend.dsback20233004511.dto.ContaDTO;
 import com.dsbackend.dsback20233004511.dto.LimiteCreditoDTO;
+import com.dsbackend.dsback20233004511.dto.OperacaoDTO;
 import com.dsbackend.dsback20233004511.services.ContaService;
 
 @RestController
@@ -53,4 +54,15 @@ public class ContaController {
 		return ResponseEntity.status(201).body(conta);
 	}
 	
+	@PostMapping("/saque")
+	public ResponseEntity<ContaDTO> sacar(@RequestBody OperacaoDTO operacaoDTO){
+		ContaDTO conta = contaService.saque(operacaoDTO.getConta1(), operacaoDTO.getValor());
+		return ResponseEntity.status(201).body(conta);
+	}
+	
+	@PostMapping("/deposito")
+	public ResponseEntity<ContaDTO> depositar(@RequestBody OperacaoDTO operacaoDTO){
+		ContaDTO conta = contaService.deposito(operacaoDTO.getConta1(), operacaoDTO.getValor());
+		return ResponseEntity.status(201).body(conta);
+	}
 }
