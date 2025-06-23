@@ -33,11 +33,12 @@ public class ClienteController {
 		return ResponseEntity.ok(cliente);
 	}
 	
+	/*
 	@PostMapping
 	public ResponseEntity<ClienteDTO> create(@RequestBody ClienteDTO clienteDTO){
 		ClienteDTO cliente = clienteService.insert(clienteDTO);
 		return ResponseEntity.status(201).body(cliente);
 	}
-	
+	*/
 	
 }

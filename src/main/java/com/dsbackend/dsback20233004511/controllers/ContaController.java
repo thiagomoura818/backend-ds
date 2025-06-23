@@ -9,11 +9,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.dsbackend.dsback20233004511.dto.ChavePix;
 import com.dsbackend.dsback20233004511.dto.ContaDTO;
-import com.dsbackend.dsback20233004511.dto.LimiteCreditoDTO;
 import com.dsbackend.dsback20233004511.dto.OperacaoDTO;
 import com.dsbackend.dsback20233004511.services.ContaService;
 
@@ -43,14 +42,14 @@ public class ContaController {
 	}
 	
 	@PostMapping("/atualizarcredito/{id}")
-	public ResponseEntity<ContaDTO> atualizarLimiteCredito(@RequestBody LimiteCreditoDTO limiteCreditoDTO, @PathVariable Long id){
-		ContaDTO conta = contaService.atualizarLimiteCredito(id, limiteCreditoDTO.getLimiteCredito());
+	public ResponseEntity<ContaDTO> atualizarLimiteCredito(@RequestParam Double limiteCredito, @PathVariable Long id){
+		ContaDTO conta = contaService.atualizarLimiteCredito(id, limiteCredito);
 		return ResponseEntity.status(201).body(conta);
 	}
 	
 	@PostMapping("/cpix/{id}")
-	public ResponseEntity<ContaDTO> cadastrarChavePix(@RequestBody ChavePix chavePix, @PathVariable Long id){
-		ContaDTO conta = contaService.cadastrarChavePix(id, chavePix.getChavePix());
+	public ResponseEntity<ContaDTO> cadastrarChavePix(@RequestParam String chavePix, @PathVariable Long id){
+		ContaDTO conta = contaService.cadastrarChavePix(id, chavePix);
 		return ResponseEntity.status(201).body(conta);
 	}
 	

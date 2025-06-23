@@ -42,7 +42,7 @@ public class Lancamento {
 	private Estado estado;
 	
 	public Lancamento() {
-		
+
 	}
 	
 	public Lancamento(Long id, Double valor, Tipo tipo, Operacao operacao, Conta conta, Estado estado) {
