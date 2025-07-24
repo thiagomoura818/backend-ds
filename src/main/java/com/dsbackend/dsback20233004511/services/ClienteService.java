@@ -48,7 +48,8 @@ public class ClienteService {
 	public ClienteDTO insert(ClienteDTO clienteDTO) {
 		if(clienteRepository.existsByCpf(clienteDTO.getCpf())) 
 			throw new IllegalArgumentException("Já existe uma cliente com esse cpf "  + clienteDTO.getCpf());
-		
+		if(clienteRepository.existsByEmail(clienteDTO.getEmail()))
+			throw new IllegalArgumentException("Já existe um cliente com esse email " + clienteDTO.getEmail());
 		Cliente cliente = new Cliente();
 		cliente.setCpf(clienteDTO.getCpf());
 		cliente.setEmail(clienteDTO.getEmail());

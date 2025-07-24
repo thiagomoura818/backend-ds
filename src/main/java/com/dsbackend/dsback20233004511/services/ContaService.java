@@ -123,7 +123,7 @@ public class ContaService {
 		Conta conta = contaRepository.findByNumero(numero)
 				.orElseThrow(()-> new EntityNotFoundException("Essa conta não existe"));
 		
-		if(valor > conta.getLimiteSaldo()+conta.getLimiteSaldo())
+		if(valor > conta.getSaldo()+conta.getLimiteSaldo())
 			throw new IllegalArgumentException("O valor não pode exceder o limite de credito");
 		
 		LancamentoDTO lancamentoDTO = new LancamentoDTO();
