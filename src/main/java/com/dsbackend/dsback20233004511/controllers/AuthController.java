@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.dsbackend.dsback20233004511.dto.JwtAuthenticationDTO;
 import com.dsbackend.dsback20233004511.dto.LoginDTO;
 import com.dsbackend.dsback20233004511.security.JwtTokenProvider;
+import com.dsbackend.dsback20233004511.services.HistoricoService;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/auth")
@@ -24,6 +27,12 @@ public class AuthController {
 	@Autowired
 	JwtTokenProvider tokenProvider;
 	
+	@Autowired
+	private HttpServletRequest request;
+	
+	@Autowired
+	private HistoricoService historicoService;
+	
 	@PostMapping("/login")
 	public ResponseEntity<?> authenticationUser(@RequestBody LoginDTO loginDTO){
 		Authentication authentication = authenticationManager.authenticate(
@@ -32,7 +41,10 @@ public class AuthController {
 						loginDTO.getSenha())
 		);
 		
+		
+		String ip = request.getRemoteAddr();
 		SecurityContextHolder.getContext().setAuthentication(authentication);
+		historicoService.insert(ip, loginDTO.getLogin());
 		
 		String jwt = tokenProvider.generateToken(authentication);
 		return ResponseEntity.ok(new JwtAuthenticationDTO(jwt));

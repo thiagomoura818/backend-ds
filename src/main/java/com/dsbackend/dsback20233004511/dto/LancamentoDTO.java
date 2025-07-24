@@ -1,5 +1,8 @@
 package com.dsbackend.dsback20233004511.dto;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 import com.dsbackend.dsback20233004511.entities.Estado;
 import com.dsbackend.dsback20233004511.entities.Lancamento;
 import com.dsbackend.dsback20233004511.entities.Operacao;
@@ -13,6 +16,7 @@ public class LancamentoDTO {
 	private Operacao operacao;
 	private Long contaId;
 	private Estado estado;
+	private String data;
 	
 	public LancamentoDTO() {
 		
@@ -25,6 +29,7 @@ public class LancamentoDTO {
 		this.operacao = lancamento.getOperacao();
 		this.contaId = lancamento.getConta().getId();
 		this.estado = lancamento.getEstado();
+        this.data = lancamento.getData().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 	}
 
 	public Long getId() {
@@ -75,5 +80,11 @@ public class LancamentoDTO {
 		this.estado = estado;
 	}
 	
+	public String getData() {
+		return this.data;
+	}
 	
+	public void setData(LocalDate data) {
+		this.data = data.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+	}
 }

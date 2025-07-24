@@ -1,5 +1,6 @@
 package com.dsbackend.dsback20233004511.entities;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Objects;
 
@@ -20,9 +21,9 @@ public class Historico {
 	private Long id;
 	@ManyToOne
 	@JoinColumn(name="id_conta", nullable=false)
-	private Conta conta;
+	private Cliente cliente;
 	@Column(nullable=false)
-	private Date dataAcesso;
+	private LocalDate dataAcesso;
 	@Column(nullable=false)
 	private String ipAcesso;
 	
@@ -30,11 +31,12 @@ public class Historico {
 		
 	}
 
-	public Historico(Long id, Conta conta, String ipAcesso) {
+	public Historico(Long id, Cliente cliente, String ipAcesso, LocalDate dataAcesso) {
 		super();
 		this.id = id;
-		this.conta = conta;
+		this.cliente = cliente;
 		this.ipAcesso = ipAcesso;
+		this.dataAcesso = dataAcesso;
 	}
 
 	public Long getId() {
@@ -45,12 +47,12 @@ public class Historico {
 		this.id = id;
 	}
 
-	public Conta getConta() {
-		return conta;
+	public Cliente getCliente() {
+		return cliente;
 	}
 
-	public void setConta(Conta conta) {
-		this.conta = conta;
+	public void setCliente(Cliente cliente) {
+		this.cliente = cliente;
 	}
 
 	public String getIpAcesso() {
@@ -63,7 +65,7 @@ public class Historico {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(conta, id, ipAcesso);
+		return Objects.hash(cliente, id, ipAcesso);
 	}
 
 	@Override
@@ -75,15 +77,15 @@ public class Historico {
 		if (getClass() != obj.getClass())
 			return false;
 		Historico other = (Historico) obj;
-		return Objects.equals(conta, other.conta) && Objects.equals(id, other.id)
+		return Objects.equals(cliente, other.cliente) && Objects.equals(id, other.id)
 				&& Objects.equals(ipAcesso, other.ipAcesso);
 	}
 
-	public Date getDataAcesso() {
+	public LocalDate getDataAcesso() {
 		return dataAcesso;
 	}
 
-	public void setDataAcesso(Date dataAcesso) {
+	public void setDataAcesso(LocalDate dataAcesso) {
 		this.dataAcesso = dataAcesso;
 	}
 	

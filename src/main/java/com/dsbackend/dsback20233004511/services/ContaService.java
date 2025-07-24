@@ -1,6 +1,7 @@
 package com.dsbackend.dsback20233004511.services;
 
 import java.security.SecureRandom;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import com.dsbackend.dsback20233004511.entities.Operacao;
 import com.dsbackend.dsback20233004511.entities.Tipo;
 import com.dsbackend.dsback20233004511.repositories.ClienteRepository;
 import com.dsbackend.dsback20233004511.repositories.ContaRepository;
+import com.dsbackend.dsback20233004511.security.JwtTokenProvider;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -31,6 +33,9 @@ public class ContaService {
 	@Autowired
 	private LancamentoService lancamentoService;
 	
+	@Autowired
+	private JwtTokenProvider jwtTokenProvider;
+	
 	public List<ContaDTO> findAll(){
 		List<Conta> listaContas = contaRepository.findAll();
 		return listaContas.stream().map(ContaDTO::new).toList();
@@ -41,6 +46,17 @@ public class ContaService {
 		
 		return new ContaDTO(conta);
 	}
+	
+	public List<ContaDTO> findByCliente(String authHeader){
+		String token = authHeader.replace("Bearer ", "");
+		String cpf = jwtTokenProvider.getUsernameFromJWT(token);
+		
+		Cliente cliente = clienteRepository.findByCpf(cpf).orElseThrow(()->new EntityNotFoundException("Não existe um cliente com esse id! "));
+		List<Conta> contas = contaRepository.findByClienteId(cliente.getId());
+		
+		return contas.stream().map(ContaDTO::new).toList();
+	}
+	
 	
 	public String gerarNumero() {
 		String alfabeto = "ABCDEFGHJKLMNPQRSTUVWXYZ";
@@ -61,8 +77,11 @@ public class ContaService {
 		return senha.toString();
 	}
 	
-	public ContaDTO insert(ContaDTO contaDTO) {
-		Cliente cliente = clienteRepository.findById(contaDTO.getClienteId()).orElseThrow(()->new EntityNotFoundException("Não existe um cliente com esse id! "));
+	public ContaDTO insert(ContaDTO contaDTO, String authHeader) {
+		String token = authHeader.replace("Bearer ", "");
+		String cpf = jwtTokenProvider.getUsernameFromJWT(token);
+		
+		Cliente cliente = clienteRepository.findByCpf(cpf).orElseThrow(()->new EntityNotFoundException("Não existe um cliente com esse id! "));
 		
 		Conta conta = new Conta();
 		String numero = gerarNumero();
@@ -116,6 +135,8 @@ public class ContaService {
 		lancamentoDTO.setOperacao(Operacao.SAQUE);
 		lancamentoDTO.setTipo(Tipo.DEBITO);
 		lancamentoDTO.setValor(valor);
+		LocalDate dataAtual = LocalDate.now();
+		lancamentoDTO.setData(dataAtual);
 		lancamentoService.insert(lancamentoDTO);
 		
 		return new ContaDTO(contaSalva);
@@ -145,7 +166,8 @@ public class ContaService {
 			lancamentoDTOBonus.setOperacao(Operacao.BONUS);
 			lancamentoDTOBonus.setTipo(Tipo.CREDITO);
 			lancamentoDTOBonus.setValor(0.10*valor);
-			
+			LocalDate dataAtual = LocalDate.now();
+			lancamentoDTOBonus.setData(dataAtual);
 			conta.setSaldo(deposito1);
 			contaSalva = contaRepository.save(conta);
 			lancamentoDTOBonus.setContaId(contaSalva.getId());
@@ -162,6 +184,8 @@ public class ContaService {
 		lancamentoDTO.setOperacao(Operacao.DEPOSITO);
 		lancamentoDTO.setTipo(Tipo.CREDITO);
 		lancamentoDTO.setValor(valor);
+		LocalDate dataAtual = LocalDate.now();
+		lancamentoDTO.setData(dataAtual);
 		lancamentoService.insert(lancamentoDTO);
 		return new ContaDTO(contaSalva);
 	}
@@ -184,6 +208,8 @@ public class ContaService {
 		 * l3 -> Valor original {valor} adicionado na segunda conta
 		 * */
 		
+		LocalDate dataAtual = LocalDate.now();
+
 		LancamentoDTO l1, l2, l3;
 		l1 = new LancamentoDTO();
 		l1.setContaId(conta1.getId());
@@ -191,6 +217,7 @@ public class ContaService {
 		l1.setOperacao(Operacao.TRANSFERENCIA);
 		l1.setTipo(Tipo.DEBITO);
 		l1.setValor(valor);
+		l1.setData(dataAtual);
 		
 		l2 = new LancamentoDTO();
 		l2.setContaId(conta1.getId());
@@ -198,13 +225,17 @@ public class ContaService {
 		l2.setOperacao(Operacao.TAXA);
 		l2.setTipo(Tipo.DEBITO);
 		l2.setValor(0.10*valor);
+		l2.setData(dataAtual);
+
 		
 		l3 = new LancamentoDTO();
 		l3.setContaId(conta2.getId());
 		l3.setEstado(Estado.ENTRADA);
 		l3.setOperacao(Operacao.TRANSFERENCIA);
 		l3.setTipo(Tipo.CREDITO);
-		l3.setValor(valor);
+		l3.setValor(valor);		
+		l3.setData(dataAtual);
+
 		
 		conta1.setSaldo(conta1.getSaldo()-valorTotal);
 		conta2.setSaldo(conta2.getSaldo()+valor);
@@ -237,21 +268,24 @@ public class ContaService {
 		/* l1 -> Valor original {valor} removido da primeira conta
 		 * l3 -> Valor original {valor} adicionado na segunda conta
 		 * */
+		LocalDate dataAtual = LocalDate.now();
 		
 		LancamentoDTO l1,l3;
 		l1 = new LancamentoDTO();
 		l1.setContaId(conta1.getId());
 		l1.setEstado(Estado.SAIDA);
-		l1.setOperacao(Operacao.TRANSFERENCIA);
+		l1.setOperacao(Operacao.PIX);
 		l1.setTipo(Tipo.DEBITO);
 		l1.setValor(valor);
+		l1.setData(dataAtual);
 		
 		l3 = new LancamentoDTO();
 		l3.setContaId(conta2.getId());
 		l3.setEstado(Estado.ENTRADA);
-		l3.setOperacao(Operacao.TRANSFERENCIA);
+		l3.setOperacao(Operacao.PIX);
 		l3.setTipo(Tipo.CREDITO);
 		l3.setValor(valor);
+		l3.setData(dataAtual);
 		
 		conta1.setSaldo(conta1.getSaldo()-valor);
 		conta2.setSaldo(conta2.getSaldo()+valor);

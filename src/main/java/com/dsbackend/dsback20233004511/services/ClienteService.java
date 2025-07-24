@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.dsbackend.dsback20233004511.dto.ClienteDTO;
 import com.dsbackend.dsback20233004511.entities.Cliente;
 import com.dsbackend.dsback20233004511.repositories.ClienteRepository;
+import com.dsbackend.dsback20233004511.security.JwtTokenProvider;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -17,6 +18,8 @@ public class ClienteService {
 	@Autowired
 	private ClienteRepository clienteRepository;
 	
+	@Autowired
+	private JwtTokenProvider jwtTokenProvider;
 	
 	public ClienteDTO findById(Long id) {
 		Cliente cliente = clienteRepository.findById(id)
@@ -25,7 +28,19 @@ public class ClienteService {
 		return new ClienteDTO(cliente);
 	}
 	
+	public ClienteDTO findByToken(String authHeader) {
+
+		String token = authHeader.replace("Bearer ", "");
+		String cpf = jwtTokenProvider.getUsernameFromJWT(token);
+		
+		Cliente cliente = clienteRepository.findByCpf(cpf).orElseThrow(()->
+		new EntityNotFoundException("Erro!"));
+		
+		return new ClienteDTO(cliente);
+	}
+	
 	public List<ClienteDTO> findAll(){
+		
 		List<Cliente> listaClientes = clienteRepository.findAll();
 		return listaClientes.stream().map(ClienteDTO::new).toList();
 	}

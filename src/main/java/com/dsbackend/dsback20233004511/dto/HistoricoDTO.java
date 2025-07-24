@@ -1,6 +1,7 @@
 package com.dsbackend.dsback20233004511.dto;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import com.dsbackend.dsback20233004511.entities.Historico;
 
@@ -8,7 +9,7 @@ public class HistoricoDTO {
 
 	private Long id;
 	private Long contaId;
-	private Date dataAcesso;
+	private String dataAcesso;
 	private String ipAcesso;
 	
 	public HistoricoDTO() {
@@ -17,8 +18,8 @@ public class HistoricoDTO {
 	
 	public HistoricoDTO(Historico historico) {
 		this.id = historico.getId();
-		this.contaId = historico.getConta().getId();
-		this.dataAcesso=historico.getDataAcesso();
+		this.contaId = historico.getCliente().getId();
+		this.dataAcesso=historico.getDataAcesso().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));;
 		this.ipAcesso=historico.getIpAcesso();
 	}
 
@@ -38,12 +39,12 @@ public class HistoricoDTO {
 		this.contaId = contaId;
 	}
 
-	public Date getDataAcesso() {
+	public String getDataAcesso() {
 		return dataAcesso;
 	}
 
-	public void setDataAcesso(Date dataAcesso) {
-		this.dataAcesso = dataAcesso;
+	public void setDataAcesso(LocalDate dataAcesso) {
+		this.dataAcesso = dataAcesso.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));;
 	}
 
 	public String getIpAcesso() {

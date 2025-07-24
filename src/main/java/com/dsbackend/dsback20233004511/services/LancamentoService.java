@@ -1,5 +1,7 @@
 package com.dsbackend.dsback20233004511.services;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +31,7 @@ public class LancamentoService {
 	}
 	
 	public List<LancamentoDTO> findByContaId(Long id){
-		List<Lancamento> listaLancamentos = lancamentoRepository.findAll();
+		List<Lancamento> listaLancamentos = lancamentoRepository.findByContaId(id);
 		return listaLancamentos.stream().map(LancamentoDTO::new).toList();
 	}
 	
@@ -37,11 +39,16 @@ public class LancamentoService {
 		Conta conta = contaRepository.findById(lancamentoDTO.getContaId())
 				.orElseThrow(()-> new EntityNotFoundException("Essa conta não existe " + lancamentoDTO.getContaId()));
 		Lancamento lancamento = new Lancamento();
+		
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        LocalDate data = LocalDate.parse(lancamentoDTO.getData(), formatter);
 		lancamento.setConta(conta);
 		lancamento.setEstado(lancamentoDTO.getEstado());
 		lancamento.setOperacao(lancamentoDTO.getOperacao());
 		lancamento.setTipo(lancamentoDTO.getTipo());
 		lancamento.setValor(lancamentoDTO.getValor());
+		lancamento.setData(data);
 		Lancamento lancamentoSalvo = lancamentoRepository.save(lancamento);
 		return new LancamentoDTO(lancamentoSalvo);
 	}

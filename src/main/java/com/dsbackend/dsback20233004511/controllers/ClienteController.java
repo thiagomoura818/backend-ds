@@ -6,8 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,6 +24,12 @@ public class ClienteController {
 	public ResponseEntity<List<ClienteDTO>> findAll(){
 		List<ClienteDTO> clientes = clienteService.findAll();
 		return ResponseEntity.ok(clientes);
+	}
+	
+	@GetMapping("/listar/token")
+	public ResponseEntity<ClienteDTO> findByToken(@RequestHeader("Authorization") String authHeader){
+		ClienteDTO cliente = clienteService.findByToken(authHeader);
+		return ResponseEntity.ok(cliente);
 	}
 	
 	@GetMapping("/listar/{id}")

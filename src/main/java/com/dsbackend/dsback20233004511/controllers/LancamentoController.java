@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dsbackend.dsback20233004511.dto.LancamentoDTO;
+import com.dsbackend.dsback20233004511.security.JwtTokenProvider;
 import com.dsbackend.dsback20233004511.services.LancamentoService;
 
 @RestController
@@ -18,6 +19,10 @@ public class LancamentoController {
 	
 	@Autowired
 	private LancamentoService lancamentoService;
+	
+	@Autowired
+	JwtTokenProvider tokenProvider;
+	
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<LancamentoDTO> findById(@PathVariable Long id){

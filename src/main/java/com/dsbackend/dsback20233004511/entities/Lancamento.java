@@ -1,5 +1,6 @@
 package com.dsbackend.dsback20233004511.entities;
 
+import java.time.LocalDate;
 import java.util.Objects;
 
 import jakarta.persistence.Column;
@@ -34,6 +35,8 @@ public class Lancamento {
 	@JoinColumn(name="id_conta", nullable=false)
 	private Conta conta;
 	
+	private LocalDate data;
+	
 	/*
 	 * Tipo enumerado pra representar SAIDA ou ENTRADA de lancamentos na conta
 	 * */
@@ -45,7 +48,7 @@ public class Lancamento {
 
 	}
 	
-	public Lancamento(Long id, Double valor, Tipo tipo, Operacao operacao, Conta conta, Estado estado) {
+	public Lancamento(Long id, Double valor, Tipo tipo, Operacao operacao, Conta conta, Estado estado, LocalDate data) {
 		super();
 		this.id = id;
 		this.valor = valor;
@@ -53,6 +56,7 @@ public class Lancamento {
 		this.operacao = operacao;
 		this.conta = conta;
 		this.estado = estado;
+		this.data = data;
 	}
 
 	public Long getId() {
@@ -119,6 +123,14 @@ public class Lancamento {
 		Lancamento other = (Lancamento) obj;
 		return Objects.equals(conta, other.conta) && estado == other.estado && Objects.equals(id, other.id)
 				&& operacao == other.operacao && tipo == other.tipo && Objects.equals(valor, other.valor);
+	}
+
+	public LocalDate getData() {
+		return data;
+	}
+
+	public void setData(LocalDate data) {
+		this.data = data;
 	}
 	
 	
